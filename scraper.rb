@@ -1,25 +1,45 @@
-# This is a template for a Ruby scraper on morph.io (https://morph.io)
-# including some code snippets below that you should find helpful
+require 'scraperwiki'
+require 'mechanize'
 
-# require 'scraperwiki'
-# require 'mechanize'
-#
-# agent = Mechanize.new
-#
-# # Read in a page
-# page = agent.get("http://foo.com")
-#
-# # Find somehing on the page using css selectors
-# p page.at('div.content')
-#
-# # Write out to the sqlite database using scraperwiki library
-# ScraperWiki.save_sqlite(["name"], {"name" => "susan", "occupation" => "software developer"})
-#
-# # An arbitrary query against the database
-# ScraperWiki.select("* from data where 'name'='peter'")
+agent = Mechanize.new
 
-# You don't have to do things with the Mechanize or ScraperWiki libraries.
-# You can use whatever gems you want: https://morph.io/documentation/ruby
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
+def scrape_page(page)
+  table = page.at("table.ContentPanel")
+  
+  table.search("tr")[1..-1].each do |tr|
+    day, month, year = tr.search("td")[3].inner_text.split("/").map{|s| s.to_i}
+    default_url = "https://epathway-web.gleneira.vic.gov.au/ePathway/Production/Web/GeneralEnquiry/EnquiryLists.aspx?ModuleCode=LAP"
+    
+    record = {
+      "info_url" => default_url,
+      "comment_url" => default_url,
+      "council_reference" => tr.at("td a").inner_text,
+      "description" => tr.search("td")[1].inner_text,
+      "address" => tr.search("td")[2].inner_text,
+      "date_received" => Date.new(year, month, day).to_s,
+      "date_scraped" => Date.today.to_s
+    }
+    
+    # Check if record already exists
+    if (ScraperWiki.select("* from data where `council_reference`='#{record['council_reference']}'").empty? rescue true)
+      ScraperWiki.save_sqlite(['council_reference'], record)
+    else
+      puts "Skipping already saved record " + record['council_reference']
+    end
+  end
+end
+
+# Load summary page.
+url = "https://epathway-web.gleneira.vic.gov.au/ePathway/Production/Web/GeneralEnquiry/EnquiryLists.aspx?ModuleCode=LAP"
+page = agent.get(url)
+form = page.forms.first
+page = form.submit(form.button_with(:value => "Search"))
+
+# Only scrape the most recent 4 pages, not the entire database
+number_pages = 4
+(1..number_pages).each do |no|
+  url = "https://epathway-web.gleneira.vic.gov.au/ePathway/Production/Web/GeneralEnquiry/EnquirySummaryView.aspx?PageNumber=#{no}"
+  page = agent.get(url)
+  puts "Scraping page #{no} of " + number_pages.to_s + "..."
+  scrape_page(page)
+end
