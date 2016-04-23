@@ -33,7 +33,8 @@ end
 url = "https://epathway-web.gleneira.vic.gov.au/ePathway/Production/Web/GeneralEnquiry/EnquiryLists.aspx?ModuleCode=LAP"
 page = agent.get(url)
 form = page.forms.first
-page = form.submit(form.button_with(:value => "Search"))
+form.radiobuttons[0].check
+page = form.submit(form.button_with(:value => "Next"))
 
 # Only scrape the most recent 4 pages, not the entire database
 number_pages = 4
