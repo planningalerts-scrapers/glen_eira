@@ -5,14 +5,13 @@ agent = Mechanize.new
 
 def scrape_page(page)
   table = page.at("table.ContentPanel")
-  
+
   table.search("tr")[1..-1].each do |tr|
     day, month, year = tr.search("td")[3].inner_text.split("/").map{|s| s.to_i}
     default_url = "https://epathway-web.gleneira.vic.gov.au/ePathway/Production/Web/GeneralEnquiry/EnquiryLists.aspx?ModuleCode=LAP"
-    
+
     record = {
       "info_url" => default_url,
-      "comment_url" => default_url,
       "council_reference" => tr.at("td a").inner_text,
       "description" => tr.search("td")[1].inner_text,
       "address" => tr.search("td")[2].inner_text,
