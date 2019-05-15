@@ -5,6 +5,7 @@
 require 'vcr'
 require 'scraperwiki'
 require 'yaml'
+require 'timecop'
 
 VCR.configure do |config|
   config.cassette_library_dir = "fixtures/vcr_cassettes"
@@ -14,7 +15,9 @@ end
 File.delete("./data.sqlite") if File.exist?("./data.sqlite")
 
 VCR.use_cassette("scraper") do
-  require "./scraper"
+  Timecop.freeze(Date.new(2019,5,15)) do
+    require "./scraper"
+  end
 end
 
 expected = if File.exist?("fixtures/expected.yml")
