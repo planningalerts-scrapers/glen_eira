@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/planningalerts-scrapers/epathway_scraper.git
-  revision: 64e44ae83a33fe572efd04bdae529c0431ad5bc1
+  revision: 831e046ae225ef48b607e7e05d24a30351fe381c
   specs:
     epathway_scraper (0.1.0)
       mechanize
