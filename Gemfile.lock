@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/planningalerts-scrapers/epathway_scraper.git
-  revision: 46247c79e4d0bf4b7e19a68307da5c2d7add317d
+  revision: 64e44ae83a33fe572efd04bdae529c0431ad5bc1
   specs:
     epathway_scraper (0.1.0)
       mechanize
@@ -58,10 +58,10 @@ GEM
       unf_ext
     unf_ext (0.0.7.6)
     vcr (5.0.0)
-    webmock (3.5.1)
+    webmock (3.6.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
-      hashdiff
+      hashdiff (>= 0.4.0, < 2.0.0)
     webrobots (0.1.2)
 
 PLATFORMS
